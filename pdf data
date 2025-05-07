@@ -1,0 +1,44 @@
+CALL pdf_data
+@@statistics_Input_Text: '1'
+@@statistics_Input_Toggle: '1'
+@@statistics_Action_Submit: '1'
+Display.ShowCustomDialog CardTemplateJson: '''{
+  \"type\": \"AdaptiveCard\",
+  \"version\": \"1.4\",
+  \"id\": \"AdaptiveCard\",
+  \"body\": [
+    {
+      \"type\": \"Input.Text\",
+      \"id\": \"Text input\"
+    },
+    {
+      \"type\": \"Input.Toggle\",
+      \"id\": \"Toggle input\",
+      \"title\": \"New toggle input\",
+      \"valueOn\": \"True\",
+      \"valueOff\": \"False\"
+    }
+  ],
+  \"actions\": [
+    {
+      \"type\": \"Action.Submit\",
+      \"id\": \"Submit\",
+      \"title\": \"Ok\"
+    }
+  ]
+}''' CustomFormData=> CustomFormData ButtonPressed=> ButtonPressed
+LOOP FOREACH CurrentItem IN data
+    SET tabulka TO CurrentItem.DataTable
+    LOOP FOREACH tabulkaData IN data
+        SET tabulkaDataCurrentItem TO tabulkaData.DataTable
+    END
+    SET hledanaHodnota TO CustomFormData['Text input']
+    Variables.FilterDataTable DataTable: tabulkaDataCurrentItem FilterParameters: { ^['RULE', 'COLUMN', 'OPERATOR', 'VALUE'], [$'''Or''', $'''Město''', $'''Equal''', hledanaHodnota] } MatchCase: True FilteredDataTable=> FilteredDataTable
+END
+IF (CustomFormData['Toggle input'] = True AND FilteredDataTable.RowsCount > 0) = $'''True''' THEN
+    SET pocetObyvatel TO FilteredDataTable[0]['Počet obyvatel']
+    Display.ShowMessageDialog.ShowMessage Message: $'''Město nalezeno, počet obyvatel %pocetObyvatel%''' Icon: Display.Icon.None Buttons: Display.Buttons.OK DefaultButton: Display.DefaultButton.Button1 IsTopMost: False ButtonPressed=> ButtonPressed2
+ELSE IF (CustomFormData['Toggle input'] = True AND FilteredDataTable.RowsCount = 0) = $'''True''' THEN
+    Display.ShowMessageDialog.ShowMessage Message: $'''Město nenalezeno''' Icon: Display.Icon.None Buttons: Display.Buttons.OK DefaultButton: Display.DefaultButton.Button1 IsTopMost: False ButtonPressed=> ButtonPressed2
+END
+EXIT Code: 0
