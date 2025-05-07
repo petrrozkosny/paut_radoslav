@@ -1,0 +1,24 @@
+SET slozka TO $'''C:\\Users\\petrrozkosny\\Downloads\\paut_data'''
+IF NotEndsWith(soubor, $'''.xlsx''', False) THEN
+    GOTO nevalidniKoncovka
+END
+BLOCK Excel
+ON BLOCK ERROR
+
+END
+    Excel.LaunchExcel.LaunchAndOpenUnderExistingProcess Path: $'''%slozka%\\%soubor%''' Visible: True ReadOnly: False Instance=> ExcelInstance
+    ON ERROR
+        GOTO chybaExcel
+    END
+    Excel.GetFirstFreeRowOnColumn Instance: ExcelInstance Column: 1 FirstFreeRowOnColumn=> FirstFreeRowOnColumn
+    DateTime.GetCurrentDateTime.Local DateTimeFormat: DateTime.DateTimeFormat.DateAndTime CurrentDateTime=> CurrentDateTime
+    Excel.WriteToExcel.WriteCell Instance: ExcelInstance Value: CurrentDateTime Column: 1 Row: FirstFreeRowOnColumn
+    Excel.WriteToExcel.WriteCell Instance: ExcelInstance Value: hodnota Column: 2 Row: FirstFreeRowOnColumn
+    Excel.CloseExcel.CloseAndSave Instance: ExcelInstance
+    EXIT Code: 0
+END
+EXIT Code: 0 ErrorMessage: $'''Neočekávaná chyba'''
+LABEL nevalidniKoncovka
+EXIT Code: 0 ErrorMessage: $'''Soubor nemá požadovanou koncovku'''
+LABEL chybaExcel
+EXIT Code: 0 ErrorMessage: $'''Chyba při práci s Excel'''
