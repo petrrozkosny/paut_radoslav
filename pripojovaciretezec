@@ -1,0 +1,1 @@
+Server=tcp:skoleni.database.windows.net,1433;Initial Catalog=skoleni;Persist Security Info=False;User ID={jmeno};Password={your_password};MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;
